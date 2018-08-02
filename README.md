@@ -1,0 +1,1 @@
+This repository implements the SnakeMake tutorial workflow and uses the Scientific Filesystem (SCIF) to provide a reproducible research environment. It has been extended to not just include Docker and Singularity
