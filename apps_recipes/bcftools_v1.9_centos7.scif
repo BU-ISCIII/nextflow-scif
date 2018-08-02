@@ -1,0 +1,29 @@
+%appinstall bcftools
+	echo "Install bcftools dependencies"
+	yum -y install  zlib \
+				    zlib-devel \
+					bzip2 \
+					bzip2-libs \
+					bzip2-devel \
+					xz \
+					xz-libs \
+					xz-devel
+
+    echo "Install bcftools"
+    BCFTOOLS_VERSION="1.9"
+	curl -fsSL https://github.com/samtools/bcftools/releases/download/${BCFTOOLS_VERSION}/bcftools-${BCFTOOLS_VERSION}.tar.bz2 -o bcftools-${BCFTOOLS_VERSION}.tar.bz2 && \
+    tar xvjf bcftools-${BCFTOOLS_VERSION}.tar.bz2 -C . && \
+    cd bcftools-${BCFTOOLS_VERSION};make;cd - && \
+    rm bcftools-${BCFTOOLS_VERSION}.tar.bz2
+
+	ln -s ../bcftools-${BCFTOOLS_VERSION}/* lib
+	ln -s ../bcftools-${BCFTOOLS_VERSION}/bcftools bin
+
+%apphelp bcftools
+    bcftools
+%apprun bcftools
+    exec bcftools "$@"
+%applabels bcftools
+    VERSION 1.9
+%apptest bcftools
+    bcftools "$@"

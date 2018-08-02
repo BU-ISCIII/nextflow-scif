@@ -1,0 +1,33 @@
+%appinstall samtools
+	echo "Install samtools dependencies"
+	yum -y install  zlib \
+				    zlib-devel \
+					ncurses \
+					ncurses-libs \
+					ncurses-devel \
+					bzip2 \
+					bzip2-libs \
+					bzip2-devel \
+					xz \
+					xz-libs \
+					xz-devel
+
+    echo "Install SAMTools"
+    SAMTOOLS_VERSION="1.9"
+
+	curl -fsSL https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2 -o samtools-${SAMTOOLS_VERSION}.tar.bz2 && \
+    tar xvjf samtools-${SAMTOOLS_VERSION}.tar.bz2 -C . && \
+    cd samtools-${SAMTOOLS_VERSION};make;cd - && \
+    rm samtools-${SAMTOOLS_VERSION}.tar.bz2
+
+	ln -s ../samtools-${SAMTOOLS_VERSION}/* lib
+	ln -s ../samtools-${SAMTOOLS_VERSION}/samtools bin
+
+%apphelp samtools
+    Samtools
+%apprun samtools
+    exec samtools "$@"
+%applabels samtools
+    VERSION 1.9
+%apptest samtools
+    samtools "$@"

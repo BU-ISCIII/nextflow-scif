@@ -1,0 +1,22 @@
+%appinstall bwa
+	yum -y install zlib \
+				   zlib-devel
+
+	BWA_VERSION="0.7.17"
+
+	curl -fsSL https://downloads.sourceforge.net/project/bio-bwa/bwa-${BWA_VERSION}.tar.bz2 -o ./bwa-${BWA_VERSION}.tar.bz2&& \
+    tar xvjf bwa-${BWA_VERSION}.tar.bz2 -C . && \
+    cd bwa-${BWA_VERSION};make;cd - && \
+    rm bwa-${BWA_VERSION}.tar.bz2
+
+	ln -s ../bwa-${BWA_VERSION}/* lib
+	ln -s ../bwa-${BWA_VERSION}/bwa bin
+
+%apphelp bwa
+    Burrows-Wheeler Aligner
+%apprun bwa
+    exec bwa "$@"
+%applabels bwa
+    VERSION 0.7.17
+%apptest bwa
+    bwa "$@"
