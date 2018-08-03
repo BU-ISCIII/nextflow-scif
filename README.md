@@ -8,7 +8,14 @@ These are the steps to follow in order to develop a new reproducible and transpa
 - **Nextflow**: enables scalable and reproducible scientific workflows managing software containers natively like a charm. It allows the adaptation of pipelines written in the most common scripting languages. Moreover its fluent DSL simplifies the implementation and the deployment of complex parallel and reactive workflows on clouds and clusters, being able to abstract the users both from *where* and even *how* they compute without any concern about the multiple dependencies a scientific workflow can have.
 - **Testing**: circleCI (**TO DO**)
 
-So...Let's begin..
+## Quick usage
+You will need to have nextflow and singularity installed for this, and you only have to type:
+```
+nextflow run BU-ISCIII/nextflow-scif -profile singularity
+```
+Thats it!
+
+So...Let's get this done...
 
 ## 1. Recipes
 When building pipelines, you can think of it like baking a cake. We have entire recipes for creating our final products (containers), and within those recipes ingredients (software) that we need to add. In this first part, we will talk about the three recipes in this repository, the [Dockerfile](Dockerfile) for the Docker container, the [Singularity](Singularity) recipe for a Singularity container, and the [app_recipes/*.scif](app_recipes) recipes. 
