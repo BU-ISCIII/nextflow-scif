@@ -118,7 +118,7 @@ Or with Docker:
 ```bash
 docker build -t nextflow-scif.img Dockerfile
 ```
-# Running a container
+### Running a container
 Command run, in Singularity and Docker will execute environment variables and the script configured in ```%runscript``` section in [Singularity](Singularity) or ENTRYPOINT in [Dockerfile](Dockerfile). In this case only scif is configured, being the command that will let us interact with the applications installed in the container.
 
 ```bash
@@ -164,7 +164,7 @@ actions:
     exec                execute a command to a scientific filesystem
 ```
 
-## Inspecting Applications
+#### Inspecting Applications
 The strength of SCIF is that it will always show you the applications installed in a container, and then provide predictable commands for inspecting, running, or otherwise interacting with them. For example, if I find the container, without any prior knowledge I can reveal the applications inside:
 
 ```
@@ -228,7 +228,7 @@ The creator of the container didn't write any complicated scripts to have this h
 
 **NOTE:** ```%appenv``` can be also used for environment variables particular of each application. We are not using this because of nextflow functionality. See [Notes](#notes).
 
-## Interacting with Applications
+#### Interacting with Applications
 I can easily shell into the container in the context of an application, meaning that the
 environment is sourced, etc. **THIS IS NOT WORKING: USING SHELL OR EXEC ON A APP RUNS %RUNSCRIPT OF THE APP, TRY REMOVING THE EXPORT PATHS**
 
@@ -265,7 +265,7 @@ apps
 data
 ```
 
-## Running Applications
+#### Running Applications
 Before we get into creating a pipeline, look how easy it is to run an application. Without scif, we would have to have known that samtools is installed, and then executed the command to the container. But with the scientific filesystem, we discovered the app (shown above) and then we can just run it. The `run` command maps to the entrypoint, as was defined by the creator:
 
 ```
