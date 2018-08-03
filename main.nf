@@ -1,15 +1,60 @@
+/*
+========================================================================================
+                  N E X T F L O W    B A S I C    W O R K F L O W
+========================================================================================
+ #### Homepage / Documentation
+ https://github.com/BU-ISCIII/nextflow-scif
+ @#### Authors
+ S. Monzon <smonzon@isciii.es>
+
+ ## Based on nf-core pipelines
+ # https://github.com/nf-core
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+Pipeline overview:
+ - 1:   BWA indexing of reference genome.
+ - 2:   BWA mapping against indexed genome.
+ - 3:   Samtools sorting and indexing.
+ - 4:   Variant calling using bcftools
+ ----------------------------------------------------------------------------------------
+*/
+
+def helpMessage() {
+    log.info"""
+    =========================================
+     BU-ISCIII/nextflow-scif DEMO PIPELINE v${version}
+    =========================================
+    Usage:
+
+    The typical command for running the pipeline is as follows:
+
+    nextflow run BU-ISCIII/nextflow-scif -profile standard
+
+    Pipeline arguments:
+      --reads                       Path to input data (must be surrounded with quotes).
+      --genome                  	Path to reference genome.
+      --outdir						Output dir.
+      --help						show this message.
+      -profile                      Hardware config to use. standard/docker/singularity. Default: standard.
+
+    """.stripIndent()
+}
+
+// Pipeline version
+version = '0.1'
+
+// Show help message
+params.help = false
+if (params.help){
+    helpMessage()
+    exit 0
+}
+
+// Default parameters
 params.reads = "$baseDir/data/samples/*.fastq"
 params.genome = "$baseDir/data/genome.fa"
 params.outdir = 'results'
 
-log.info """\
-         VARIANT CALLING TOY PIPELINE
-         =============================
-         genome: ${params.genome}
-         reads : ${params.reads}
-         outdir: ${params.outdir}
-         """
-         .stripIndent()
 
 /*
  * the reference genome file
@@ -23,6 +68,23 @@ Channel
     .fromFilePairs( params.reads, size : 1 )
     .ifEmpty { error "Cannot find any reads matching: ${params.reads}" }
     .set { reads }
+
+
+// Header log info
+log.info "========================================================="
+log.info " BU-ISCIII/nextflow-scif : basic nf workflow"
+log.info "========================================================="
+def summary = [:]
+summary['Reads']               = params.reads
+summary['Reference genome']    = params.genome
+summary['Results dir']         = params.outdir
+log.info summary.collect { k,v -> "${k.padRight(21)}: $v" }.join("\n")
+log.info "===================================="
+
+
+// Posible software version and profile checks (p.e check if standar profile is used in hpc server)
+// if().....
+
 
 /*
  * Step 1. Builds the genome index required by the mapping process
@@ -104,4 +166,7 @@ process variantCalling {
 
 workflow.onComplete {
 	println ( workflow.success ? "Done!" : "Oops .. something went wrong" )
+
+	// E-mail and html reporting configuration.
+
 }

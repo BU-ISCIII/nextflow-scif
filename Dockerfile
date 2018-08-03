@@ -19,4 +19,5 @@ RUN scif install /opt/bcftools_v1.9_centos7.scif
 ENV PATH=${PATH}:/scif/apps/bcftools/bin
 
 # SciF Entrypoint
-ENTRYPOINT ["scif"]
+# Disabled because of compatibility with nextflow.
+#ENTRYPOINT ["scif"]
