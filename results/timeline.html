@@ -82,20 +82,20 @@ function c0(index) { return "#9c9c9c"; }
 function c1(index) { return "#bdbdbd"; }
 function c2(index) { return colors[index % 16]; } // <-- note: uses only the first 16 colors
 
-var elapsed="49.5s"
-var beginningMillis=1533291036868;
-var endingMillis=1533291086396;
+var elapsed="10.8s"
+var beginningMillis=1533296394915;
+var endingMillis=1533296405754;
 var data=[
-{"label": "makeBWAindex (genome.fa)", "times": [{"starting_time": 1533291037711, "ending_time": 1533291037800, "color":c1(0)}, {"starting_time": 1533291037800, "ending_time": 1533291038291, "color":c2(0), "label": "7.3s \/ 27.5 MB"}, {"starting_time": 1533291038291, "ending_time": 1533291045038, "color":c1(0)}]},
-{"label": "mapping (C)", "times": [{"starting_time": 1533291045110, "ending_time": 1533291045138, "color":c1(1)}, {"starting_time": 1533291045138, "ending_time": 1533291046860, "color":c2(1), "label": "16.5s \/ 210.6 MB"}, {"starting_time": 1533291046860, "ending_time": 1533291061587, "color":c1(1)}]},
-{"label": "mapping (A)", "times": [{"starting_time": 1533291045134, "ending_time": 1533291045238, "color":c1(1)}, {"starting_time": 1533291045238, "ending_time": 1533291046945, "color":c2(1), "label": "11s \/ 210.6 MB"}, {"starting_time": 1533291046945, "ending_time": 1533291056181, "color":c1(1)}]},
-{"label": "mapping (B)", "times": [{"starting_time": 1533291045148, "ending_time": 1533291045241, "color":c1(1)}, {"starting_time": 1533291045241, "ending_time": 1533291046918, "color":c2(1), "label": "8.5s \/ 210.6 MB"}, {"starting_time": 1533291046918, "ending_time": 1533291053644, "color":c1(1)}]},
-{"label": "samtools (B)", "times": [{"starting_time": 1533291053661, "ending_time": 1533291053744, "color":c1(2)}, {"starting_time": 1533291053744, "ending_time": 1533291054276, "color":c2(2), "label": "16.7s \/ 877.7 MB"}, {"starting_time": 1533291054276, "ending_time": 1533291070370, "color":c1(2)}]},
-{"label": "samtools (A)", "times": [{"starting_time": 1533291056202, "ending_time": 1533291056280, "color":c1(2)}, {"starting_time": 1533291056280, "ending_time": 1533291056849, "color":c2(2), "label": "16.7s \/ 877.7 MB"}, {"starting_time": 1533291056849, "ending_time": 1533291072906, "color":c1(2)}]},
-{"label": "samtools (C)", "times": [{"starting_time": 1533291061606, "ending_time": 1533291061686, "color":c1(2)}, {"starting_time": 1533291061686, "ending_time": 1533291062219, "color":c2(2), "label": "12.7s \/ 877.7 MB"}, {"starting_time": 1533291062219, "ending_time": 1533291074267, "color":c1(2)}]},
-{"label": "variantCalling (B)", "times": [{"starting_time": 1533291070390, "ending_time": 1533291070406, "color":c1(3)}, {"starting_time": 1533291070406, "ending_time": 1533291070992, "color":c2(3), "label": "9.7s \/ 86.8 MB"}, {"starting_time": 1533291070992, "ending_time": 1533291080065, "color":c1(3)}]},
-{"label": "variantCalling (A)", "times": [{"starting_time": 1533291072923, "ending_time": 1533291073005, "color":c1(3)}, {"starting_time": 1533291073005, "ending_time": 1533291073522, "color":c2(3), "label": "12.5s \/ 86.8 MB"}, {"starting_time": 1533291073522, "ending_time": 1533291085413, "color":c1(3)}]},
-{"label": "variantCalling (C)", "times": [{"starting_time": 1533291074286, "ending_time": 1533291074366, "color":c1(3)}, {"starting_time": 1533291074366, "ending_time": 1533291074876, "color":c2(3), "label": "8.5s \/ 86.8 MB"}, {"starting_time": 1533291074876, "ending_time": 1533291082736, "color":c1(3)}]}
+{"label": "makeBWAindex (genome.fa)", "times": [{"starting_time": 1533296395677, "ending_time": 1533296395697, "color":c1(0)}, {"starting_time": 1533296395697, "ending_time": 1533296396169, "color":c2(0), "label": "571ms \/ 117.2 MB"}, {"starting_time": 1533296396169, "ending_time": 1533296396248, "color":c1(0)}]},
+{"label": "mapping (C)", "times": [{"starting_time": 1533296396328, "ending_time": 1533296396348, "color":c1(1)}, {"starting_time": 1533296396348, "ending_time": 1533296398222, "color":c2(1), "label": "1.9s \/ 296.9 MB"}, {"starting_time": 1533296398222, "ending_time": 1533296398274, "color":c1(1)}]},
+{"label": "mapping (B)", "times": [{"starting_time": 1533296396342, "ending_time": 1533296396351, "color":c1(1)}, {"starting_time": 1533296396351, "ending_time": 1533296398231, "color":c2(1), "label": "2s \/ 296.9 MB"}, {"starting_time": 1533296398231, "ending_time": 1533296398301, "color":c1(1)}]},
+{"label": "mapping (A)", "times": [{"starting_time": 1533296396351, "ending_time": 1533296396449, "color":c1(1)}, {"starting_time": 1533296396449, "ending_time": 1533296398312, "color":c2(1), "label": "1.9s \/ 296.9 MB"}]},
+{"label": "samtools (C)", "times": [{"starting_time": 1533296398290, "ending_time": 1533296398308, "color":c1(2)}, {"starting_time": 1533296398308, "ending_time": 1533296398995, "color":c2(2), "label": "746ms \/ 130.2 MB"}, {"starting_time": 1533296398995, "ending_time": 1533296399036, "color":c1(2)}]},
+{"label": "samtools (A)", "times": [{"starting_time": 1533296398310, "ending_time": 1533296398401, "color":c1(2)}, {"starting_time": 1533296398401, "ending_time": 1533296399113, "color":c2(2), "label": "772ms \/ 130.2 MB"}]},
+{"label": "samtools (B)", "times": [{"starting_time": 1533296398318, "ending_time": 1533296398403, "color":c1(2)}, {"starting_time": 1533296398403, "ending_time": 1533296399118, "color":c2(2), "label": "774ms \/ 130.2 MB"}]},
+{"label": "variantCalling (C)", "times": [{"starting_time": 1533296399058, "ending_time": 1533296399062, "color":c1(3)}, {"starting_time": 1533296399062, "ending_time": 1533296399720, "color":c2(3), "label": "5.7s \/ 168.5 MB"}, {"starting_time": 1533296399720, "ending_time": 1533296404763, "color":c1(3)}]},
+{"label": "variantCalling (A)", "times": [{"starting_time": 1533296399103, "ending_time": 1533296399182, "color":c1(3)}, {"starting_time": 1533296399182, "ending_time": 1533296399853, "color":c2(3), "label": "741ms \/ 168.6 MB"}]},
+{"label": "variantCalling (B)", "times": [{"starting_time": 1533296399123, "ending_time": 1533296399185, "color":c1(3)}, {"starting_time": 1533296399185, "ending_time": 1533296399879, "color":c2(3), "label": "762ms \/ 168.5 MB"}, {"starting_time": 1533296399879, "ending_time": 1533296399885, "color":c1(3)}]}
 ]
 
 
