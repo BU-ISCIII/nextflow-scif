@@ -5,6 +5,9 @@ From: centos:latest
     ./apps_recipes/bwa_v0.7.17_centos7.scif /opt
 	./apps_recipes/samtools_v1.9_centos7.scif /opt
 	./apps_recipes/bcftools_v1.9_centos7.scif /opt
+	./apps_recipes/nextflow.scif /opt
+	nextflow.config /opt
+	main.nf /opt
 %post
 	echo "Install basic development tools"
 	yum -y groupinstall "Development Tools"
@@ -27,6 +30,9 @@ From: centos:latest
 
 	echo "Installing bcftools app"
     scif install /opt/bcftools_v1.9_centos7.scif
+
+    echo "Installing nextflow"
+    scif install /opt/nextflow.scif
 
 %runscript
     exec scif "$@"

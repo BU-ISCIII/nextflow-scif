@@ -1,0 +1,33 @@
+%appinstall nextflow
+	yum -y install which java
+
+	wget -qO- https://get.nextflow.io | bash
+	chmod 755 nextflow
+	mv nextflow bin
+
+%apphelp nextflow
+    This app runs nextflow workflow creator program.
+%appfiles nextflow
+	/opt/nextflow.config
+
+%apprun nextflow
+	cp /opt/nextflow.config ${SCIF_DATA}
+	cp /opt/main.nf ${SCIF_DATA}
+
+	cd ${SCIF_DATA}
+    exec nextflow run ${SCIF_DATA}/main.nf "$@"
+
+%applabels nextflow
+    VERSION 0.29
+%apptest nextflow
+    nextflow "$@"
+
+%apprun nextflow-config
+    cat ${SCIF_APPROOT}/nextflow.config
+%appfiles nextflow-config
+    /opt/nextflow.config
+%apphelp nextflow-config
+    Run this application to get the nextflow.config recipe printed to the screen
+    for running the Pipeline with Nextflow and Singularity
+      ./nextflow-scif-alt --quiet run nextflow-config >> nextflow.config
+      docker run nextflow-scif-alt --quiet run nextflow-config >> nextflow.config
