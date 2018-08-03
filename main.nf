@@ -101,7 +101,7 @@ process makeBWAindex {
 	script:
 	"""
 	mkdir BWAIndex
-	scif run bwa index -a bwtsw $fasta
+	bwa index -a bwtsw $fasta
 	"""
 }
 
@@ -122,7 +122,7 @@ process mapping {
     script:
     prefix = reads[0].toString() - ~/(\.fastq)$/
     """
-    scif run bwa mem -M $fasta $reads | samtools view -bS - > ${prefix}.bam
+    bwa mem -M $fasta $reads | samtools view -bS - > ${prefix}.bam
     """
 }
 
@@ -140,9 +140,9 @@ process samtools {
 
     script:
     """
-    scif run samtools sort $bam -o ${bam.baseName}.sorted.bam -T ${bam.baseName}.sorted
-    scif run samtools index ${bam.baseName}.sorted.bam
-    scif run samtools stats ${bam.baseName}.sorted.bam > ${bam.baseName}.stats.txt
+    samtools sort $bam -o ${bam.baseName}.sorted.bam -T ${bam.baseName}.sorted
+    samtools index ${bam.baseName}.sorted.bam
+    samtools stats ${bam.baseName}.sorted.bam > ${bam.baseName}.stats.txt
     """
 }
 
@@ -160,7 +160,7 @@ process variantCalling {
 	script:
 	prefix = bam_sorted[0].toString() - ~/(\.sorted)?(\.bam)?$/
 	"""
-	scif run samtools mpileup -g -f ${genome} ${bam_sorted} | bcftools call -mv - > ${prefix}.vcf
+	samtools mpileup -g -f ${genome} ${bam_sorted} | bcftools call -mv - > ${prefix}.vcf
 	"""
 }
 

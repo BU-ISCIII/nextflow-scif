@@ -7,15 +7,12 @@
 
 %apphelp nextflow
     This app runs nextflow workflow creator program.
-%appfiles nextflow
-	/opt/nextflow.config
 
 %apprun nextflow
-	cp /opt/nextflow.config ${SCIF_DATA}
-	cp /opt/main.nf ${SCIF_DATA}
-
-	cd ${SCIF_DATA}
-    exec nextflow run ${SCIF_DATA}/main.nf "$@"
+	# I can't avoid adding all apps to the path, because nextflow uses a temporal folder work to execute commands, when we use scif run app the current directory is change to APPROOT so files are not found.
+    export PATH=$PATH:${SCIF_APPBIN_samtools}:${SCIF_APPBIN_bwa}:${SCIF_APPBIN_bcftools}
+    cd ${SCIF_DATA}
+    exec nextflow "$@"
 
 %applabels nextflow
     VERSION 0.29
@@ -31,3 +28,13 @@
     for running the Pipeline with Nextflow and Singularity
       ./nextflow-scif-alt --quiet run nextflow-config >> nextflow.config
       docker run nextflow-scif-alt --quiet run nextflow-config >> nextflow.config
+
+%apprun nextflow-main-nf
+	cat ${SCIF_APPROOT}/main.nf
+%appfiles
+	/opt/main.nf
+%apphelp
+    Run this application to get the nextflow.config recipe printed to the screen
+    for running the Pipeline with Nextflow and Singularity
+      ./nextflow-scif-alt --quiet run nextflow-main-nf >> main.nf
+      docker run nextflow-scif-alt --quiet run nextflow-main-nf >> main.nf

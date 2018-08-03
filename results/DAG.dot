@@ -1,4 +1,4 @@
-digraph DAG {
+digraph "DAG" {
 p0 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.fromFilePairs"];
 p1 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="ifEmpty"];
 p0 -> p1;
