@@ -356,14 +356,126 @@ docker push bu-isciii/nextflow-scif
 ```
 
 ## 2. Nextflow workflow
+[Nextflow](https://www.nextflow.io/) enables scalable and reproducible scientific workflows managing software containers natively like a charm. It allows the adaptation of pipelines written in the most common scripting languages. Moreover its fluent DSL simplifies the implementation and the deployment of complex parallel and reactive workflows on clouds and clusters, being able to abstract the users both from *where* and even *how* they compute without any concern about the multiple dependencies a scientific workflow can have.
+We will need a [nextflow config file](nextflow.config) and a [main.nf](main.nf) script for start using nextflow.
+
 ### Config file
+In the nextflow config file we can customize all parameters, environment variables, profiles, etc. we will need in our pipeline. If you want to know more about config files for nextflow you can check it [here](https://www.nextflow.io/). 
+
+In this case we have created a "simple" config file to use as a template for more complex configuration, using [nf-core](https://github.com/nf-core) as a model. It contains some sections with information ```manifest``` and process default parameters.
+
+Following that we have my favourite part where you can configure ```profiles``` for executing your nextflow pipeline. With this you can specify ```-profile standard/docker/singularity``` and the pipeline will run in your local machine, in your singularity image or in your docker image. Moreover you can add further configuration limiting the memory or the number of cpus (ever per process), or any custom variables you need for running in your institution HPC.
+
+The section looks like this:
+```
+profiles {
+
+  standard {
+    includeConfig 'conf/base.config'
+  }
+
+  docker {
+    includeConfig 'conf/docker.config'
+  }
+
+  singularity {
+  	includeConfig 'conf/singularity.config'
+  }
+
+  hpc_isciii {
+  	// TODO. with modules.
+  }
+
+  testing {
+  	// TODO
+  }
+
+  aws {
+  	// TO DO
+  }
+
+  none {
+    // Don't load any config (for use with custom home configs)
+  }
+
+}
+```
+We have separated the configuration in several config files, the singularity and docker config files will enabled singularity and docker functionality and the path/url to the container:
+```
+singularity {
+  enabled = true
+}
+process {
+  // Path to container
+  container = 'buisciii/nextflow-scif:1.0'
+  executor = 'local'
+}
+```
 
 ### Main nextflow script
+The main nextflow script [main.nf](main.nf) creates the pipeline concatenating the output of one step with another, and managing the input and output. You can check the nextflow [docs](https://www.nextflow.io/docs/latest/script.html) for mastering te creation of nextflow pipelines.
+
+Here we configured a simple template for a basic pipeline. It will be useful as an start point for developing more complex pipelines, with help and logging function templates, and space for variable checking and email reporting.
 
 ### Running the pipeline
 
+Now, let's have some fun and run our precious brand new pipeline with our great containers:
+
+This command is the simplier, it will run the pipeline with all parameters by default, and standard profile, which means that it will be run in your local machine and you need to have all software installed and in your PATH.
+```
+# Simpler one
+nextflow run main.nf
+```
+Now, let's use our container with docker or with singularity:
+```
+nextflow run main.nf -profile singularity
+nextflow run main.nf -profile docker
+```
+Just as simple as that, nextflow handles the use of our singularity/docker container adding ```docker run``` or ```singularity exec``` before each script in the process configured in [main.nf](main.nf)!!
+
+But this gets better because for running this pipeline you don't even need to download this repository, you only need to have installed nextflow and Singularity/Docker and type:
+```
+nextflow run BU-ISCIII/nextflow-scif -profile singularity
+```
+and nextflow will pull the github repository, download the docker image and build it into a singularity image and run your pipeline using only one line of command!!
+
+Of course this is functioning with test data included in the github repository, but you can easily supply your own reads, reference genome and output dir using parameters. You can see the help of the pipeline:
+
+```
+nextflow run BU-ISCIII/nextflow-scif --help
+```
+Output:
+```
+N E X T F L O W  ~  version 0.29.0                                                                                                                          
+Launching `BU-ISCIII/nextflow-scif` [angry_albattani] - revision: d768dfd571 [develop]                                                                      
+
+=========================================
+ BU-ISCIII/nextflow-scif DEMO PIPELINE v0.1
+=========================================  
+Usage:                                     
+
+The typical command for running the pipeline is as follows:
+
+nextflow run BU-ISCIII/nextflow-scif -profile standard
+
+Pipeline arguments:
+  --reads                       Path to input data (must be surrounded with quotes).
+  --genome                      Path to reference genome.
+  --outdir                                              Output dir.
+  --help                                                show this message.
+  -profile                      Hardware config to use. standard/docker/singularity. Default: standard.
+```
+
+and run it with your own data:
+
+```
+nextflow run BU-ISCIII/nextflow-scif -profile singularity --reads *.fastq --genome genome.fa --outdir results
+```
+
+**NOTE:** If you are using singularity as a container you have to take into consideration that it mounts $PWD and /home/${user} by default so if your data is in this directories you will be fine. For advance usage see [this section](#advance-usage)
+
 ## 3. Testing
-**TODO**
+**TODO** Use cirCI or Travis?? For deployment and testing
 
 
 # Advance usage
@@ -384,7 +496,7 @@ Improvement of I/O metadata mounting only the project folder instead of all proc
 The idea is to have a workflow independent of where you are computing it, and a container system which allows you to assure reproducibility and sharing, including the maximun information possible for its use.
 
 # Notes
-For get this working I have to make a decision: put SCIF on the "top" or put nextflow instead. I will try to explain it:
+In order to get this working I have to make a decision: put SCIF on the "top" or put nextflow instead. I will try to explain it:
 
 - Nextflow on the top:
     * Nextflow provides a natively functionality for using singularity and docker. Using it you just set the commands the pipeline is going to run, and nextflow handles the use of ```docker run``` or ```singularity exec``` before this commands with the container you supplied in the configuration.
@@ -396,7 +508,7 @@ For get this working I have to make a decision: put SCIF on the "top" or put nex
 - SCIF on the top (I am going to make a branch testing this):
    * Another aproximation will be to install nextflow inside the containers. This way you can only interact with the apps commands through SCIF which will be the only entrypoint in Singularity and Docker.
    * Nextflow in this case will not use Singularity or Docker profile, because it is INSIDE one, so this config parameters must be set to false.
-   * Main.nf script have to be modified and ```scif exec``` must be add before each command.
+   * main.nf script would have to be modified and ```scif exec``` must be add before each command.
    * The pros of this approximation will be that apps will be in separate environments as SCI-F plans to, and you won't need to have nextflow installed in your system. If you use the image, just with docker or singularity installed you are set.
    * However you could only use this nextflow pipeline with the image prepare for this, or have scif installed in your local/hpc system, and all the apps you are going to use inside scif which may not be the case (as in our HPC where we don't have install permissions)
    
