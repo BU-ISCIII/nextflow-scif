@@ -505,11 +505,17 @@ In order to get this working I have to make a decision: put SCIF on the "top" or
     * On the other hand, our main.nf will remain untouch and will be able to run in a local machine, a cluster or a container without any modification. Which was I was looking for.
     * For this to work your minimun needs in your system are nextflow and Docker/Singularity if you are using docker or singularity profile.
     
-- SCIF on the top (I am going to make a branch testing this):
+- SCIF on the top (I am going to make a branch testing this): - > I tried but it didn't work, I get all the apps being recognized but when the process in nextflow where going to be run the files weren't found. This is because nextflow uses a temp folder called work for all executions, and when you use scif run bwa, the command is run in ${SCIF_APPROOT} instead on nextflow folder.
+
    * Another aproximation will be to install nextflow inside the containers. This way you can only interact with the apps commands through SCIF which will be the only entrypoint in Singularity and Docker.
    * Nextflow in this case will not use Singularity or Docker profile, because it is INSIDE one, so this config parameters must be set to false.
-   * main.nf script would have to be modified and ```scif exec``` must be add before each command.
+   * main.nf script would have to be modified and ```scif run``` must be add before each command.
    * The pros of this approximation will be that apps will be in separate environments as SCI-F plans to, and you won't need to have nextflow installed in your system. If you use the image, just with docker or singularity installed you are set.
    * However you could only use this nextflow pipeline with the image prepare for this, or have scif installed in your local/hpc system, and all the apps you are going to use inside scif which may not be the case (as in our HPC where we don't have install permissions)
-   
+
+- Alternative middle point configuration -> I have this working in feature/nextflow-scif-alt
+   * I install nextflow inside the container like the option above, and each app environment is separated, but I have to add all app bin folders to the path prior to run nextflow command in %apprun.
+   * Also I had to cd to ${SCIF_DATA}, and bind this folder with my $PWD in the singularity command.
+   * For more info please chech feature/nextflow-scif-alt branch in this repository, and README-ALT.md file.
+
 I suppose this is a decision you have to make, one could think that I can use my singularity image in my HPC system and forgot about modules and stuff, I will have all the software I need, in the version I need and whenever I need it. However even if this is going to be the case (we are still testing performance, we are very newbies using containers) I always like to have flexibility, and nextflow provides me in theory that "I don't mind where I compute" flexibility.
