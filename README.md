@@ -4,8 +4,8 @@ This repository implements the Nextflow tutorial workflow using the Scientific F
 These are the steps to follow in order to develop a new reproducible and transparent workflow:
 
 - **SCIF recipes**: **Discoverability** and **Transparency** by installing our software in the container via a [Scientific Filesystem](https://sci-f.github.io). SCIF also lets us install the same dependencies across container technologies.
-- **Singularity/Docker container**: this will handle the **Reproducibility** of our pipeline and the software it is going to need. Moreover Docker and Singularity HUB makes deployment and sharing a lot easier (**TO DO**).
-- **Nextflow**enables scalable and reproducible scientific workflows managing software containers natively like a charm. It allows the adaptation of pipelines written in the most common scripting languages. Moreover its fluent DSL simplifies the implementation and the deployment of complex parallel and reactive workflows on clouds and clusters, being able to abstract the users both from *where* and even *how* they compute without any concern about the multiple dependencies a scientific workflow can have.
+- **Singularity/Docker container**: this will handle the **Reproducibility** of our pipeline and the software it is going to need. Moreover Docker and Singularity HUB makes deployment and sharing a lot easier.
+- **Nextflow**: enables scalable and reproducible scientific workflows managing software containers natively like a charm. It allows the adaptation of pipelines written in the most common scripting languages. Moreover its fluent DSL simplifies the implementation and the deployment of complex parallel and reactive workflows on clouds and clusters, being able to abstract the users both from *where* and even *how* they compute without any concern about the multiple dependencies a scientific workflow can have.
 - **Testing**: circleCI (**TO DO**)
 
 So...Let's begin..
@@ -63,7 +63,7 @@ Then simply install the SCIF recipe to it. That comes down to these three comman
 ```
 RUN pip install scif                           # Install scif from pypi
 ADD app_recipes/*.scif /opt                    # Add the recipe to the container
-RUN scif install /opt/rnatoy.scif               # Install it to the container
+RUN scif install /opt/samtools.scif             # Install it to the container
 ```
 Now a little about the "mess", you can see that we added export PATH variable with bin folder for each app, this should not be necessary because app/bin folder is added to the PATH automaticaly when the app is run, **BUT** nextflow functionality expects to have access to the executables in the path or you have to provide the full path.
 ```
@@ -133,7 +133,7 @@ docker run nextflow-scif scif
 singularity run nextflow-scif
 ```
 
-The output will be something like that
+The output will be something like this:
 
 ```
 Scientific Filesystem [v0.0.71]
