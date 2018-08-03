@@ -29,7 +29,7 @@ scif install app_recipes/bcftools_v1.9_centos7.scif
 but I could also define the different applications in only one file and install them the next way.
 
 ```
-scif install rnatoy.scif
+scif install nextflow-scif.scif
 ```
 
 This level of modularity is up to the user. Programatically, this install would be equivalent. This is a purely "human information" decision. If I am building a single container to share with my paper, I would opt to only need one file. If I am providing a builder service to users and want to easily install recipes in a modular fashion, I would want to do the second, which is this case. Here we are preparing a model for developing new workflows as quickly as possible, so app_recipes should contain a collection of app recipes that can be combined in the Singularity/Docker recipe for creating the needed container for the workflow being developed. In fact, probably we will convert app_recipes to a Github repository, so it will be used as remote repository in all the workflows we will develop, making its update easier.
@@ -116,19 +116,23 @@ sudo singularity build nextflow-scif.img Singularity
 
 Or with Docker:
 ```bash
-docker build -t nextflow-scif.img Dockerfile
+## . points to the path where docker will import the context for image creation. If you are in the repository path you have only to do:
+docker build -t nextflow-scif .
+# Dockerfile and context will be automatically imported to the docker daemon.
 ```
 ### Running a container
 Command run, in Singularity and Docker will execute environment variables and the script configured in ```%runscript``` section in [Singularity](Singularity) or ENTRYPOINT in [Dockerfile](Dockerfile). In this case only scif is configured, being the command that will let us interact with the applications installed in the container.
+**NOTE:** We can't define an ENTRYPOINT in docker because Nextflow doesn't support docker containers with entrypoint at the moment, it seems in its [docs](https://www.nextflow.io/docs/latest/docker.html#docker-page) that have implemented some twist but is already deprecated. This means that for interacting with the applications we have to explicitly use scif command after docker run.
 
 ```bash
 # Docker
-docker run nextflow-scif
+docker run nextflow-scif scif
 
 # Singularity
 ./nextflow-scif
 singularity run nextflow-scif
 ```
+
 The output will be something like that
 
 ```
@@ -169,7 +173,7 @@ The strength of SCIF is that it will always show you the applications installed 
 
 ```
 # Docker
-docker run nextflow-scif apps
+docker run nextflow-scif scif apps
 # Singularity
 ./nextflow-scif apps
 # or
@@ -186,7 +190,7 @@ We can also obtain help about a particular application
 
 ```bash
 # Docker
-docker run nextflow-scif help samtools
+docker run nextflow-scif scif help samtools
 # Singularity
 ./nextflow-scif help samtools
 # or
@@ -201,7 +205,7 @@ and then inspecting
 
 ```
 # Docker
-docker run nextflow-scif inspect samtools
+docker run nextflow-scif scif inspect samtools
 # Singularity
 ./nextflow-scif inspect samtools
 # or
@@ -234,7 +238,7 @@ environment is sourced, etc. **THIS IS NOT WORKING: USING SHELL OR EXEC ON A APP
 
 ```
 # Docker
-docker run -it nextflow-scif shell samtools
+docker run -it nextflow-scif scif shell samtools
 # Singularity
 ./nextflow-scif shell samtools
 ```
@@ -250,11 +254,18 @@ PATH=/scif/apps/samtools/bin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/
 
 Notice how I'm in the app's context (in it's application folder) and that it's bin is added to the path? I can also shell in without a specific application context, but still have all the SCIF [global variables](https://sci-f.github.io/spec-v1#environment-namespace) available to me.
 
+### Using the container without the apps
+
 We can still shell into the "general" container:
 
 ```
-$ docker run -it nextflow-scif shell
-$ ./nextflow-scif shell
+# Docker
+docker run -it nextflow-scif shell
+# Singularity
+./nextflow-scif shell
+# or
+singularity shell nextflow-scif
+
 ```
 Output:
 ```
@@ -263,6 +274,14 @@ executing /bin/bash
 root@055a34619d17:/scif# ls
 apps
 data
+```
+Or thanks our "mess" in which we have exported bin app folders to the path we can execute each app directly from singularity container:
+```
+### This are the commands that nextflow will run internally.
+# Docker 
+docker run nextflow-scif samtools
+# Singularity
+singularity exec nextflow-scif samtools
 ```
 
 #### Running Applications
@@ -308,14 +327,77 @@ This is equal to the issue shown with shell, due to out little twist for get nex
 
 ```
 # Docker
-docker run nextflow-scif exec samtools env | grep PATH
+docker run nextflow-scif scif exec samtools env | grep PATH
 # Singularity
 ./nextflow-scif exec samtools env | grep PATH
 ```
 Output:
 ```
 LD_LIBRARY_PATH=/scif/apps/samtools/lib
-PATH=/scif/apps/samtools/bin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PATH=/scif/apps/samtools/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ```
 
 Note that for above, you will get more output with the Singularity container, as it shares the environment with the host. Whether we are using Docker or Singularity, the actions going on internally with the scientific filesystem client are the same. Given a simple enough pipeline, we could stop here, and just issue a series of commands to run the different apps.
+
+### Deploy a container
+Once you have your container completely functional you can upload it to Docker Hub or Singularity Hub for version control and sharing. We are uploading it to Docker Hub since Singularity can easily build or run a container from there.
+
+If you have build your docker image in your container you can do:
+```
+# See your images
+docker images
+# You have to create an account on Docker Hub and a new repository which is very easy.
+# Then log to docker hub from the command line.
+docker login --username=yourhubusername --email=youremail@company.com
+# You can tag your image.
+docker tag bb38976d03cf buisciii/nextflow-scif:1.0
+# You can push
+docker push bu-isciii/nextflow-scif
+```
+
+## 2. Nextflow workflow
+### Config file
+
+### Main nextflow script
+
+### Running the pipeline
+
+## 3. Testing
+**TODO**
+
+
+# Advance usage
+Till this point everything is working fine because we are using the data located in our current directory, and singularity mounts ```$PWD``` by default. But what if we are running in our HPC-cluster, and our data is in /processing_Data or other custom directory?
+
+**TODO**: Try in different locations, with data and reference genome in different folders.
+Use of --bind ? . Need to pre-create paths inside the containers??
+Improvement of I/O metadata mounting only the project folder instead of all processing_Data?? 
+*Note*: for each app scif/app/{app}/data folder is created. Thats a possibility for mounting. We have to make some performance test in our cluster.
+
+# Summary
+- We have created a container with all the software needed for our pipeline with Singularity and Docker using the same SCI-F recipes. This will allow you to deploy new containers really quicky for new pipelines once you have created a good collection of scif apps recipes.
+- Using SCI-F we can access all our apps installed separately from our container. Besides our container is no longer a "black-box" and we can obtain information about what apps are installed in our container, with its labels and help.
+- Our container is also functional with the native container commands, and we can exec any command in our container without the use of SCI-F which made it flexible enough for its use with nextflow.
+- We have deploy our container to DockerHub so new users don't have to build the image theirselves.
+- Finally we have created a basic nextflow workflow, with three different profile configurations {standard, singularity, docker}, this way you can use the same pipeline running in your local computer with your software installed, or with the singularity or docker image. Besides, you can create more profiles for its usage in a HPC with ```module``` configured, or even in a AWS server.
+
+The idea is to have a workflow independent of where you are computing it, and a container system which allows you to assure reproducibility and sharing, including the maximun information possible for its use.
+
+# Notes
+For get this working I have to make a decision: put SCIF on the "top" or put nextflow instead. I will try to explain it:
+
+- Nextflow on the top:
+    * Nextflow provides a natively functionality for using singularity and docker. Using it you just set the commands the pipeline is going to run, and nextflow handles the use of ```docker run``` or ```singularity exec``` before this commands with the container you supplied in the configuration.
+    * This means that the executables for each app **MUST** be accesible when you run/exec from the container, not each of the apps with SCI-F. 
+    * Thus, we are being forced to add the executables to the PATH; and somehow mess up SCIF goal of separate apps environment adding the bin app folder to the PATH only when the app is run. Being this the main con of this approximation.
+    * On the other hand, our main.nf will remain untouch and will be able to run in a local machine, a cluster or a container without any modification. Which was I was looking for.
+    * For this to work your minimun needs in your system are nextflow and Docker/Singularity if you are using docker or singularity profile.
+    
+- SCIF on the top (I am going to make a branch testing this):
+   * Another aproximation will be to install nextflow inside the containers. This way you can only interact with the apps commands through SCIF which will be the only entrypoint in Singularity and Docker.
+   * Nextflow in this case will not use Singularity or Docker profile, because it is INSIDE one, so this config parameters must be set to false.
+   * Main.nf script have to be modified and ```scif exec``` must be add before each command.
+   * The pros of this approximation will be that apps will be in separate environments as SCI-F plans to, and you won't need to have nextflow installed in your system. If you use the image, just with docker or singularity installed you are set.
+   * However you could only use this nextflow pipeline with the image prepare for this, or have scif installed in your local/hpc system, and all the apps you are going to use inside scif which may not be the case (as in our HPC where we don't have install permissions)
+   
+I suppose this is a decision you have to make, one could think that I can use my singularity image in my HPC system and forgot about modules and stuff, I will have all the software I need, in the version I need and whenever I need it. However even if this is going to be the case (we are still testing performance, we are very newbies using containers) I always like to have flexibility, and nextflow provides me in theory that "I don't mind where I compute" flexibility.
