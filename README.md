@@ -446,6 +446,13 @@ nextflow run BU-ISCIII/nextflow-scif -profile singularity
 ```
 and nextflow will pull the github repository, download the docker image and build it into a singularity image and run your pipeline using only one line of command!!
 
+Also thanks to scif you can also interact with the image pulled from nextflow, in this case is a singularity image build from the docker image in DockerHub and by default is saved in ```work/singularity```. Since this image is created from the Dockerfile without an entrypoint as we saw before we have to interact with:
+```
+# For instance inspecting bwa app
+singularity exec buisciii-nextflow-scif-1.0.img scif inspect bwa 
+```
+This is not much a problem because in normal HPC usage we will be using a Singularity image build locally by us with Singulary Recipe, Docker will be used more for easy sharing.
+
 Of course this is functioning with test data included in the github repository, but you can easily supply your own reads, reference genome and output dir using parameters. You can see the help of the pipeline:
 
 ```
