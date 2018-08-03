@@ -513,7 +513,7 @@ In order to get this working I have to make a decision: put SCIF on the "top" or
    * The pros of this approximation will be that apps will be in separate environments as SCI-F plans to, and you won't need to have nextflow installed in your system. If you use the image, just with docker or singularity installed you are set.
    * However you could only use this nextflow pipeline with the image prepare for this, or have scif installed in your local/hpc system, and all the apps you are going to use inside scif which may not be the case (as in our HPC where we don't have install permissions)
 
-- Alternative middle point configuration -> I have this working in feature/nextflow-scif-alt
+- Alternative middle point configuration -> I have this working in **feature/nextflow-scif-alt**
    * I install nextflow inside the container like the option above, and each app environment is separated, but I have to add all app bin folders to the path prior to run nextflow command in %apprun.
    * Also I had to cd to ${SCIF_DATA}, and bind this folder with my $PWD in the singularity command.
    * For more info please chech feature/nextflow-scif-alt branch in this repository, and README-ALT.md file.
