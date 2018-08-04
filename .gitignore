@@ -8,3 +8,7 @@ Gemfile.lock
 work/
 .nextflow*log*
 .nextflow/
+nextflow
+
+# Ignore results files
+results

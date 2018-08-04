@@ -1,5 +1,5 @@
 # Nextflow tutorial workflow using SCIF and Singularity/Docker
-This repository implements the Nextflow tutorial workflow using the Scientific Filesystem (SCIF) and Docker/Singularity to provide a reproducible research environment. Is an adaptation of [snakemake.scif](https://github.com/sci-f/snakemake.scif), but using nextflow instead. Also I have just discovered [this try](https://github.com/vsoch/rnatoy.scif/edit/master/README.md) of @vsoch and I am adapting her cool documentation to this case.
+This repository implements the Nextflow tutorial workflow using the Scientific Filesystem (SCIF) and Docker/Singularity to provide a reproducible research environment. Is an adaptation of [snakemake.scif](https://github.com/sci-f/snakemake.scif), but using nextflow instead. Also I have just discovered [this try](https://github.com/vsoch/rnatoy.scif/edit/master/README.md) of [@vsoch](https://www.github.com/vsoch) and I am adapting her cool documentation to this case.
 
 These are the steps to follow in order to develop a new reproducible and transparent workflow:
 
@@ -9,25 +9,52 @@ These are the steps to follow in order to develop a new reproducible and transpa
 - **Testing**: circleCI (**TO DO**)
 
 ## Quick usage
-You will need to have nextflow and singularity installed for this, and you only have to type:
+You will need to [install nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) and [singularity](https://www.sylabs.io/guides/2.5.1/user-guide/quick_start.html#installation). Singularity must
+be installed with administrative privileges, usually system wide, and nextflow can be "installed" to your
+present working directory. It's also recommended to define your Singularity cache to be somewhere
+(like a scratch space) where you have more disk space. For example:
+
+```bash
+export SINGULARITY_CACHEDIR=$SCRATCH/.singularity
 ```
+
+If you are working on your local machine, this location defaults to `$HOME/.singularity`, which
+is appropriate. Once you have both, you only have to type:
+
+```bash
+# With the nextflow executable in the present working directory
+./nextflow run BU-ISCIII/nextflow-scif -profile singularity
+
+# With the nextflow executable installed system wide, and on the PATH
 nextflow run BU-ISCIII/nextflow-scif -profile singularity
 ```
-Thats it!
 
-So...Let's get this done...
+Thats it! When you finish, a "results" folder will appear with the content of your analysis.
+
+```bash
+$ ls results/
+bwa  DAG.dot  DAG.svg  report.html  timeline.html  trace.txt  vcf
+```
+
+You can preview the
+
+So...Let's get this done... and by "this" we are referring to a complete description of how this
+recipe was derived, and the components of the software that just ran. The idea here is that if you
+understand the underlying components, you can easily build your own nextflow pipelines.
 
 ## 1. Recipes
+
 When building pipelines, you can think of it like baking a cake. We have entire recipes for creating our final products (containers), and within those recipes ingredients (software) that we need to add. In this first part, we will talk about the three recipes in this repository, the [Dockerfile](Dockerfile) for the Docker container, the [Singularity](Singularity) recipe for a Singularity container, and the [app_recipes/*.scif](app_recipes) recipes. 
 
 ### The Scientific Filesystem Recipe
+
 A scientific filesystem is useful because it allows me to write one recipe for my various software, and then install easily in different containers or on my host. How do you know when you find a recipe? When you find a recipe for a scientific filesystem (SCIF), you will see a file with extension *.scif. For example, in this repository:
 
  - [app_recipes/*.scif](app_recipes) are the recipes for the scientific filesystem that will be installed in both the Docker and Singularity containers to be run with nextflow. SCIF is flexible in that there can be **many** different internal applications defined in one file, however if we want we can put them in individual files and install them equivalently, as we show in this example. 
  
  For example, given the apps "samtools", "bwa" and "bcftools" and using a three recipes files , I would install like:
 
-```
+```bash
 scif install app_recipes/samtools_v1.9_centos7.scif
 scif install app_recipes/bwa_v0.7.17_centos7.scif
 scif install app_recipes/bcftools_v1.9_centos7.scif
@@ -35,7 +62,7 @@ scif install app_recipes/bcftools_v1.9_centos7.scif
 
 but I could also define the different applications in only one file and install them the next way.
 
-```
+```bash
 scif install nextflow-scif.scif
 ```
 
@@ -44,7 +71,8 @@ This level of modularity is up to the user. Programatically, this install would 
 This means that, for any SCIF recipe and a host of interest (Docker or Singularity container, or your computer) you can install the same recipes. 
 
 SCIF makes the installation to be so tidy, it makes me wanna cry, a scif folder is created in ```/``` of your container and the tree directory will look like this:
-```
+
+```bash
 /scif/apps/
      samtools/
         bin/
@@ -67,18 +95,21 @@ Also SCIF will provide a separate variable environment for each app (even we are
 
 Then simply install the SCIF recipe to it. That comes down to these three commands:
 
-```
+```bash
 RUN pip install scif                           # Install scif from pypi
 ADD app_recipes/*.scif /opt                    # Add the recipe to the container
 RUN scif install /opt/samtools.scif             # Install it to the container
 ```
+
 Now a little about the "mess", you can see that we added export PATH variable with bin folder for each app, this should not be necessary because app/bin folder is added to the PATH automaticaly when the app is run, **BUT** nextflow functionality expects to have access to the executables in the path or you have to provide the full path.
-```
+
+```bash
 # Docker Recipe
 ENV PATH=${PATH}:/scif/apps/samtools/bin 
 # Singularity Recipe
 echo 'export PATH=${PATH}:/scif/apps/samtools/bin' >> $SINGULARITY_ENVIRONMENT
 ```
+
 In order to take advantage of complete nextflow functionality I decided to assume this mistake in the use of SCIF, which will make the apps envs not being totally separated. You can read the [Notes](#notes) section for the pros and cons of this approximation and an insight of another posibility I don't like so much (or I consider less useful for our situation).
 
 **NOTE**: it would be cool to use $SCIF_APPBIN_samtools, instead of the full path ```/scif/apps/samtools/bin```, but I tried and this variable must be set after PATH env variable, because I can't get it working.
@@ -86,14 +117,14 @@ In order to take advantage of complete nextflow functionality I decided to assum
 ### The Singularity Recipe
 The recipe file for a Singularity container is the file [Singularity](Singularity). The format of the recipe file is different, but installing the scientific filesystem, again from the recipes [app_recipes](app_recipes) is performed with the same commands:
 
-```
+```bash
 pip install scif                                           # Install scif from pypi
 scif install /opt/samtools_v1.9_centos7.scif               # Install it to the container
 ```
 
 The only missing command to add the recipe to the container is because Singularity recipes allow you to do this in a `%files` section that functions like a cp <source> <dest> (if not dest supplied the file will be copied in ```/```)
 
-```
+```bash
 %files
     samtools_v1.9_centos7.scif /opt
 ```
@@ -122,11 +153,13 @@ sudo singularity build nextflow-scif.img Singularity
 ```
 
 Or with Docker:
+
 ```bash
 ## . points to the path where docker will import the context for image creation. If you are in the repository path you have only to do:
 docker build -t nextflow-scif .
 # Dockerfile and context will be automatically imported to the docker daemon.
 ```
+
 ### Running a container
 Command run, in Singularity and Docker will execute environment variables and the script configured in ```%runscript``` section in [Singularity](Singularity) or ENTRYPOINT in [Dockerfile](Dockerfile). In this case only scif is configured, being the command that will let us interact with the applications installed in the container.
 **NOTE:** We can't define an ENTRYPOINT in docker because Nextflow doesn't support docker containers with entrypoint at the moment, it seems in its [docs](https://www.nextflow.io/docs/latest/docker.html#docker-page) that have implemented some twist but is already deprecated. This means that for interacting with the applications we have to explicitly use scif command after docker run.
@@ -142,7 +175,7 @@ singularity run nextflow-scif
 
 The output will be something like this:
 
-```
+```bash
 Scientific Filesystem [v0.0.71]
 usage: scif [-h] [--debug] [--quiet] [--writable]
             
@@ -178,7 +211,7 @@ actions:
 #### Inspecting Applications
 The strength of SCIF is that it will always show you the applications installed in a container, and then provide predictable commands for inspecting, running, or otherwise interacting with them. For example, if I find the container, without any prior knowledge I can reveal the applications inside:
 
-```
+```bash
 # Docker
 docker run nextflow-scif scif apps
 # Singularity
@@ -210,7 +243,8 @@ The output will look like this:
 
 and then inspecting
 
-```
+
+```bash
 # Docker
 docker run nextflow-scif scif inspect samtools
 # Singularity
@@ -243,7 +277,7 @@ The creator of the container didn't write any complicated scripts to have this h
 I can easily shell into the container in the context of an application, meaning that the
 environment is sourced, etc. **THIS IS NOT WORKING: USING SHELL OR EXEC ON A APP RUNS %RUNSCRIPT OF THE APP, TRY REMOVING THE EXPORT PATHS**
 
-```
+```bash
 # Docker
 docker run -it nextflow-scif scif shell samtools
 # Singularity
@@ -252,7 +286,7 @@ docker run -it nextflow-scif scif shell samtools
 
 Output:
 
-```
+```bash
 [samtools] executing /bin/bash 
 root@d002e338b88b:/scif/apps/samtools# env | grep PATH
 LD_LIBRARY_PATH=/scif/apps/samtools/lib
@@ -265,7 +299,7 @@ Notice how I'm in the app's context (in it's application folder) and that it's b
 
 We can still shell into the "general" container:
 
-```
+```bash
 # Docker
 docker run -it nextflow-scif shell
 # Singularity
@@ -273,7 +307,7 @@ docker run -it nextflow-scif shell
 # or
 singularity shell nextflow-scif
 
-```
+```bash
 Output:
 ```
 WARNING No app selected, will run default ['/bin/bash']
@@ -294,7 +328,7 @@ singularity exec nextflow-scif samtools
 #### Running Applications
 Before we get into creating a pipeline, look how easy it is to run an application. Without scif, we would have to have known that samtools is installed, and then executed the command to the container. But with the scientific filesystem, we discovered the app (shown above) and then we can just run it. The `run` command maps to the entrypoint, as was defined by the creator:
 
-```
+```bash
 # Docker
 docker run nextflow-scif run samtools
 # Singularity 
@@ -302,7 +336,7 @@ docker run nextflow-scif run samtools
 ```
 Output:
 
-```
+```bash
 Program: samtools (Tools for alignments in the SAM format)
 Version: 0.1.18 (r982:295)
 
@@ -332,7 +366,7 @@ Command: view        SAM<->BAM conversion
 And executing any command in the context of the application is possible too: **THIS IS NOT WORKING**.
 This is equal to the issue shown with shell, due to out little twist for get nextflow working, here we have all the apps added to the PATH, but this should be the correct functioning of SCIF:
 
-```
+```bash
 # Docker
 docker run nextflow-scif scif exec samtools env | grep PATH
 # Singularity
