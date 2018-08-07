@@ -30,4 +30,9 @@
 %applabels samtools
     VERSION 1.9
 %apptest samtools
-    samtools "$@"
+    samtools --version
+	if [ $? -ne 0 ] ; then
+	   echo 1
+	else
+	   echo 0
+	fi

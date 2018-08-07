@@ -20,10 +20,15 @@
 	ln -s ../bcftools-${BCFTOOLS_VERSION}/bcftools bin
 
 %apphelp bcftools
-    bcftools
+    This app has bcftools installed
 %apprun bcftools
     exec bcftools "$@"
 %applabels bcftools
     VERSION 1.9
 %apptest bcftools
-    bcftools "$@"
+    bcftools --version
+	if [ $? -ne 0 ] ; then
+	   echo 1
+	else
+	   echo 0
+	fi
