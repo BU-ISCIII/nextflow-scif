@@ -2,21 +2,21 @@ version: 2
 jobs:
 
   # If you want to deploy your container to Docker Hub, you must
-  #  1. define the CONTAINER_NAME environment variable for the project 
+  #  1. define the CONTAINER_NAME environment variable for the project
   #  2. Also define DOCKER_USER and DOCKER_PASS
   setup:
     environment:
-      - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+      - TZ: "/usr/share/zoneinfo/Europe/Madrid"
     docker:
       - image: docker:18.01.0-ce-git
     steps:
       - run:
-          name: Test if the user has defined the repo name 
+          name: Test if the user has defined the repo name
           command: apk add --no-cache pigz python3
 
   build:
     environment:
-      - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+      - TZ: "/usr/share/zoneinfo/Europe/Madrid"
     docker:
       - image: docker:18.01.0-ce-git
     working_directory: /tmp/src
@@ -165,7 +165,7 @@ jobs:
             echo "The applications installed in this container are:"
             echo "Container name set to ${CONTAINER_NAME}"
             docker run -it --rm=false \
-              ${CONTAINER_NAME}:latest apps
+              ${CONTAINER_NAME}:latest scif apps
       - run:
           name: Show SCIF Help
           no_output_timeout: 2h
@@ -177,9 +177,9 @@ jobs:
             fi
             echo "Container name set to ${CONTAINER_NAME}"
             echo "The help for each app is the following:"
-            for app in $(docker run --rm=false ${CONTAINER_NAME}:latest apps); 
+            for app in $(docker run --rm=false ${CONTAINER_NAME}:latest scif apps);
                 do
-                    docker run -it --rm=false ${CONTAINER_NAME}:latest help ${app}
+                    docker run -it --rm=false ${CONTAINER_NAME}:latest scif help ${app}
                 done
       - run:
           name: Run SCIF Tests
@@ -192,10 +192,10 @@ jobs:
             fi
             echo "Container name set to ${CONTAINER_NAME}"
             echo "Testing each installed SCIF app:"
-            for app in $(docker run --rm=false ${CONTAINER_NAME}:latest apps); 
+            for app in $(docker run --rm=false ${CONTAINER_NAME}:latest scif apps);
                 do
                     echo "Testing ${app}"
-                    docker run --rm=false ${CONTAINER_NAME}:latest test ${app}
+                    docker run --rm=false ${CONTAINER_NAME}:latest scif test ${app}
                 done
       - store_test_results:
           path: /home/circleci/out/tests
@@ -229,7 +229,7 @@ jobs:
                     CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
             fi
             echo "Here we could upload metadata, for example:"
-            docker run -it ${CONTAINER_NAME}:latest inspect
+            docker run -it ${CONTAINER_NAME}:latest scif inspect
       - run:
           name: Deploy to Docker Hub
           no_output_timeout: 40m
@@ -273,7 +273,7 @@ workflows:
             tags:
               only: /.*/
 
-      # This is where we can run tests - since we use SCIF we can issue the 
+      # This is where we can run tests - since we use SCIF we can issue the
       # command to list the apps, then run the test over each one.
       - test_apps:
           requires:
