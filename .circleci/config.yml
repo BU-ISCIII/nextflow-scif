@@ -67,6 +67,7 @@ jobs:
                 --build-arg VERSION="${CIRCLE_TAG:-$THISVERSION}" . \
               && e=0 && break || sleep 15
             done && [ "$e" -eq "0" ]
+            echo "OK till this point"
             # SCIF VERSION
             THISVERSION=$(docker run "${CONTAINER_NAME}" scif version)
             echo "SCIF Version is ${THISVERSION}"
