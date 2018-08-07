@@ -68,7 +68,7 @@ jobs:
               && e=0 && break || sleep 15
             done && [ "$e" -eq "0" ]
             # SCIF VERSION
-            THISVERSION=$(docker run "${CONTAINER_NAME}" version)
+            THISVERSION=$(docker run "${CONTAINER_NAME}" scif version)
             echo "SCIF Version is ${THISVERSION}"
             echo "${CIRCLE_TAG:-$THISVERSION}" > VERSION
       - run:
