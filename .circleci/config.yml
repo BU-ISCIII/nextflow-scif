@@ -73,7 +73,7 @@ jobs:
               && e=0 && break || sleep 15
             done && [ "$e" -eq "0" ]
             # Pipeline VERSION
-            THISVERSION=$(nextflow ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} --version)
+            THISVERSION=$(nextflow run ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} --version)
             echo "Pipeline Version is ${THISVERSION}"
             echo "${CIRCLE_TAG:-$THISVERSION}"
       - run:
