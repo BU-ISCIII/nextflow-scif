@@ -11,4 +11,4 @@ work/
 nextflow
 
 # Ignore results files
-results
+results/

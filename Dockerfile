@@ -21,3 +21,4 @@ ENV PATH=${PATH}:/scif/apps/bcftools/bin
 # SciF Entrypoint
 # Disabled because of compatibility with nextflow.
 #ENTRYPOINT ["scif"]
+CMD scif

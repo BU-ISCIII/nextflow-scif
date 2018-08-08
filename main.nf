@@ -22,7 +22,7 @@ Pipeline overview:
 def helpMessage() {
     log.info"""
     =========================================
-     BU-ISCIII/nextflow-scif DEMO PIPELINE v${version}
+     BU-ISCIII/nextflow-scif DEMO PIPELINE v${params.ver}
     =========================================
     Usage:
 
@@ -36,17 +36,22 @@ def helpMessage() {
       --outdir						Output dir.
       --help						show this message.
       -profile                      Hardware config to use. standard/docker/singularity. Default: standard.
+      --version						Show pipeline version.
 
     """.stripIndent()
 }
-
-// Pipeline version
-version = '0.1'
 
 // Show help message
 params.help = false
 if (params.help){
     helpMessage()
+    exit 0
+}
+
+if (params.version){
+    log.info"""
+    	v${params.ver}
+    """.stripIndent()
     exit 0
 }
 
