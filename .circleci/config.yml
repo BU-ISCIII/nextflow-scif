@@ -72,10 +72,9 @@ jobs:
                 --build-arg VERSION="${CIRCLE_TAG:-$THISVERSION}" . \
               && e=0 && break || sleep 15
             done && [ "$e" -eq "0" ]
-            echo "OK till this point"
-            # SCIF VERSION
+            # Pipeline VERSION
             THISVERSION=$(docker run "${CONTAINER_NAME}" nextflow ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} --version)
-            echo "SCIF Version is ${THISVERSION}"
+            echo "Pipeline Version is ${THISVERSION}"
             echo "${CIRCLE_TAG:-$THISVERSION}"
       - run:
           name: Docker save
@@ -308,6 +307,6 @@ workflows:
             - test_apps
           filters:
             branches:
-              only: master
+              only: develop
             tags:
               only: /.*/
