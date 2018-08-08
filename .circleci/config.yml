@@ -307,6 +307,6 @@ workflows:
             - test_apps
           filters:
             branches:
-              only: develop
+              only: master
             tags:
               only: /.*/
