@@ -244,6 +244,8 @@ jobs:
             echo "Container name set to ${CONTAINER_NAME}"
             if [[ -n "$DOCKER_PASS" ]]; then
                   docker login -u $DOCKER_USER -p $DOCKER_PASS
+                  docker tag ${CONTAINER_NAME} ${CONTAINER_NAME}:1.1
+                  docker push ${CONTAINER_NAME}:1.1
                   docker push ${CONTAINER_NAME}:latest
             fi
 workflows:
