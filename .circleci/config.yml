@@ -23,12 +23,12 @@ jobs:
     steps:
       - run:
           name: Install parallel gzip, python3 and java
-          command: apk add --no-cache pigz python3 java
+          command: apk add --no-cache pigz python3 openjdk8 bash
       - run:
           name: Install nextflow
           command: |
+            cd /usr/bin
             wget -qO- https://get.nextflow.io | bash
-            export PATH=$PATH:$PWD/nextflow
       - restore_cache:
           keys:
             - docker-v1-{{ .Branch }}-{{ epoch }}
