@@ -74,9 +74,9 @@ jobs:
             done && [ "$e" -eq "0" ]
             echo "OK till this point"
             # SCIF VERSION
-            THISVERSION=$(docker run "${CONTAINER_NAME}" scif version)
+            THISVERSION=$(docker run "${CONTAINER_NAME}" nextflow ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} --version)
             echo "SCIF Version is ${THISVERSION}"
-            echo "${CIRCLE_TAG:-$THISVERSION}" > VERSION
+            echo "${CIRCLE_TAG:-$THISVERSION}"
       - run:
           name: Docker save
           no_output_timeout: 40m
@@ -246,13 +246,21 @@ jobs:
                 then
                     CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
             fi
+
             echo "Container name set to ${CONTAINER_NAME}"
+
             if [[ -n "$DOCKER_PASS" ]]; then
                   docker login -u $DOCKER_USER -p $DOCKER_PASS
-                  docker tag ${CONTAINER_NAME} ${CONTAINER_NAME}:1.1
-                  docker push ${CONTAINER_NAME}:1.1
-                  docker push ${CONTAINER_NAME}:latest
             fi
+
+            docker push ${CONTAINER_NAME}:latest
+
+            if [[ -n "${CIRCLE_TAG}" ]]
+            then
+                docker tag ${CONTAINER_NAME} ${CONTAINER_NAME}:${CIRCLE_TAG}
+                docker push ${CONTAINER_NAME}:${CIRCLE_TAG}
+            fi
+
 workflows:
   version: 2
   build_test_deploy:
