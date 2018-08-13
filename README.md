@@ -529,7 +529,7 @@ nextflow run BU-ISCIII/nextflow-scif -profile singularity --reads *.fastq --geno
 **NOTE:** If you are using singularity as a container you have to take into consideration that it mounts $PWD and /home/${user} by default so if your data is in this directories you will be fine. For advance usage see [this section](#advance-usage)
 
 ## 3. Testing
-[CircleCI](https://circleci.com) is a platform that allows you to configure real circle processes for develop, test and deploy your github projects. First of all you need to connect your github account to circle from its website, and then create a .circleci folder in your repo with a [config.yaml file](.circleci/config.yaml).
+[CircleCI](https://circleci.com) is a platform that allows you to configure real circle processes for develop, test and deploy your github projects. First of all you need to connect your github account to circle from its website, and then create a .circleci folder in your repo with a [config.yml file](.circleci/config.yml).
 It works executing the processes you configured in your config file in the cloud, creating a docker container for building your container, with really useful cache options which made building container images a lot faster. It amazes me hoy it works with containers inside containers, using one container for build a container xD.
 The config file consists in the definition of a base container where the magin will happen, then you start defining jobs and steps inside this jobs, for example here we have defined setup, get_data, build, test and deploy jobs. For build step, for example, we define the commands we need to use for build our container using Docker recipe in our repository.
 ```
