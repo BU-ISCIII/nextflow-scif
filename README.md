@@ -2,14 +2,14 @@
 
 [![CircleCI Build Status](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/BU-ISCIII/nextflow-scif) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![CircleCi Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com) [![Nextflow version](https://img.shields.io/badge/nextflow->0.29.0-green.svg)](http://nextflow.io) [![Scif](https://img.shields.io/badge/Filesystem-Scientific-brightgreen.svg)](https://sci-f.github.io)
 
-This repository implements the Nextflow tutorial workflow using the Scientific Filesystem (SCIF) and Docker/Singularity to provide a reproducible research environment. Is an adaptation of [snakemake.scif](https://github.com/sci-f/snakemake.scif), but using nextflow instead. Also I have just discovered [this try](https://github.com/vsoch/rnatoy.scif/edit/master/README.md) of [@vsoch](https://www.github.com/vsoch) and I am adapting her cool documentation to this case.
+This repository implements the Nextflow tutorial workflow using the Scientific Filesystem (SCIF) and Docker/Singularity to provide a reproducible research environment. We have made an adaptation of [snakemake.scif](https://github.com/sci-f/snakemake.scif), but using nextflow instead. Also I have just discovered [this try](https://github.com/vsoch/rnatoy.scif/edit/master/README.md) of [@vsoch](https://www.github.com/vsoch) and I am adapting her cool documentation to this case.
 
 These are the steps to follow in order to develop a new reproducible and transparent workflow:
 
 - **SCIF recipes**: **Discoverability** and **Transparency** by installing our software in the container via a [Scientific Filesystem](https://sci-f.github.io). SCIF also lets us install the same dependencies across container technologies.
 - **Singularity/Docker container**: this will handle the **Reproducibility** of our pipeline and the software it is going to need. Moreover Docker and Singularity HUB makes deployment and sharing a lot easier.
 - **Nextflow**: enables scalable and reproducible scientific workflows managing software containers natively like a charm. It allows the adaptation of pipelines written in the most common scripting languages. Moreover its fluent DSL simplifies the implementation and the deployment of complex parallel and reactive workflows on clouds and clusters, being able to abstract the users both from *where* and even *how* they compute without any concern about the multiple dependencies a scientific workflow can have.
-- **Testing**: circleCI (**TO DO**)
+- **Testing**: circleCI allows an interfaz for testing and deployment of software in github. It uses a series of containers for p.e building your container, testing your software against your container and deploy the image to Docker Hub and your program to some software repository like Heroku. Here we will use it in first instance for deploy our docker/Singularity container, and then to test our nextflow pipeline with some dummy test data (we will use as template the [scif builed](https://github.com/sci-f/builder)).
 
 ## Quick usage
 You will need to [install nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) and [singularity](https://www.sylabs.io/guides/2.5.1/user-guide/quick_start.html#installation). Singularity must
@@ -39,8 +39,6 @@ $ ls results/
 bwa  DAG.dot  DAG.svg  report.html  timeline.html  trace.txt  vcf
 ```
 
-You can preview the
-
 So...Let's get this done... and by "this" we are referring to a complete description of how this
 recipe was derived, and the components of the software that just ran. The idea here is that if you
 understand the underlying components, you can easily build your own nextflow pipelines.
@@ -69,7 +67,7 @@ but I could also define the different applications in only one file and install 
 scif install nextflow-scif.scif
 ```
 
-This level of modularity is up to the user. Programatically, this install would be equivalent. This is a purely "human information" decision. If I am building a single container to share with my paper, I would opt to only need one file. If I am providing a builder service to users and want to easily install recipes in a modular fashion, I would want to do the second, which is this case. Here we are preparing a model for developing new workflows as quickly as possible, so app_recipes should contain a collection of app recipes that can be combined in the Singularity/Docker recipe for creating the needed container for the workflow being developed. In fact, probably we will convert app_recipes to a Github repository, so it will be used as remote repository in all the workflows we will develop, making its update easier.
+This level of modularity is up to the user. Programatically, this install would be equivalent. This is a purely "human information" decision. If I am building a single container to share with my paper, I would opt to only need one file. If I am providing a builder service to users and want to easily install recipes in a modular fashion, I would want to do the second, which is this case. Here we are preparing a model for developing new workflows as quickly as possible, so app_recipes should contain a collection of app recipes that can be combined in the Singularity/Docker recipe for creating the needed container for the workflow being developed. In fact, probably we will convert app_recipes to a Github repository, so it will be used as a remote repository in all the workflows we will develop, making its update easier.
 
 This means that, for any SCIF recipe and a host of interest (Docker or Singularity container, or your computer) you can install the same recipes. 
 
@@ -90,11 +88,11 @@ SCIF makes the installation to be so tidy, it makes me wanna cry, a scif folder 
      ....
 ```
 
-Also SCIF will provide a separate variable environment for each app (even we are going to mess it a little bit in order to get nextflow functioning), and some cool ENV variables $SCIF_APP(BIN|ENV|...) that seem promising for a lot of functionality. You can read more on [Singularity docs](https://www.sylabs.io/guides/2.5.1/user-guide/reproducible_scif_apps.html) and [SCIF docs](https://sci-f.github.io/).
+Also SCIF will provide a separate variable environment for each app (we are going to mess it a little bit in order to get nextflow functioning), and some cool ENV variables $SCIF_APP(BIN|ENV|...) that seem promising for a lot of options. You can read more on [Singularity docs](https://www.sylabs.io/guides/2.5.1/user-guide/reproducible_scif_apps.html) and [SCIF docs](https://sci-f.github.io/).
 
 
 ### The Docker Recipe
-[Dockerfile](Dockerfile) is the recipe for building our container. You will also notice the installation is simple - we start with a container base that was equivalently used by the creator of the pipeline with system / host dependencies. In this case, I have used a base docker container of centos 7, this is because we use this SO in our lab and our HPC, and it is useful for me to have homogeneous installation recipes in both containers, my workstation and HPC (at least for now that we are figuring all this stuff out).
+[Dockerfile](Dockerfile) is the recipe for building our container. You will also notice the installation is simple - we start with a container base that was equivalently used by the creator of the pipeline with system / host dependencies. In this case, we have used a base docker container of centos 7, this is because we use this SO in our lab and our HPC, and it is useful for me to have homogeneous installation recipes in both containers, my workstation and HPC (at least for now that we are figuring all this stuff out).
 
 Then simply install the SCIF recipe to it. That comes down to these three commands:
 
@@ -104,7 +102,7 @@ ADD app_recipes/*.scif /opt                    # Add the recipe to the container
 RUN scif install /opt/samtools.scif             # Install it to the container
 ```
 
-Now a little about the "mess", you can see that we added export PATH variable with bin folder for each app, this should not be necessary because app/bin folder is added to the PATH automaticaly when the app is run, **BUT** nextflow functionality expects to have access to the executables in the path or you have to provide the full path.
+Now a little about the "mess", you can see that we added export PATH variable with bin folder for each app, this should not be necessary because app/bin folder is added to the PATH automatically when the app is run, **BUT** nextflow expects to have access to the executables in the path or you have to provide the full path.
 
 ```bash
 # Docker Recipe
@@ -113,7 +111,7 @@ ENV PATH=${PATH}:/scif/apps/samtools/bin
 echo 'export PATH=${PATH}:/scif/apps/samtools/bin' >> $SINGULARITY_ENVIRONMENT
 ```
 
-In order to take advantage of complete nextflow functionality I decided to assume this mistake in the use of SCIF, which will make the apps envs not being totally separated. You can read the [Notes](#notes) section for the pros and cons of this approximation and an insight of another posibility I don't like so much (or I consider less useful for our situation).
+In order to take advantage of complete nextflow functionality I decided to assume this "mistake" in the use of SCIF, which will make the apps envs not being totally separated. You can read the [Notes](#notes) section for the pros and cons of this approximation and an insight of another posibility I don't like so much (or I consider less useful for our situation).
 
 **NOTE**: it would be cool to use $SCIF_APPBIN_samtools, instead of the full path ```/scif/apps/samtools/bin```, but I tried and this variable must be set after PATH env variable, because I can't get it working.
 
@@ -309,9 +307,10 @@ docker run -it nextflow-scif shell
 ./nextflow-scif shell
 # or
 singularity shell nextflow-scif
+```
 
-```bash
 Output:
+
 ```
 WARNING No app selected, will run default ['/bin/bash']
 executing /bin/bash 
@@ -319,7 +318,9 @@ root@055a34619d17:/scif# ls
 apps
 data
 ```
-Or thanks our "mess" in which we have exported bin app folders to the path we can execute each app directly from singularity container:
+
+Or thanks to our "mess", in which we have exported bin app folders to the path, we can execute each app directly from singularity container:
+
 ```
 ### This are the commands that nextflow will run internally.
 # Docker 
@@ -327,16 +328,18 @@ docker run nextflow-scif samtools
 # Singularity
 singularity exec nextflow-scif samtools
 ```
+**NOTE:** This is how nextflow uses containers.
 
 #### Running Applications
 Before we get into creating a pipeline, look how easy it is to run an application. Without scif, we would have to have known that samtools is installed, and then executed the command to the container. But with the scientific filesystem, we discovered the app (shown above) and then we can just run it. The `run` command maps to the entrypoint, as was defined by the creator:
 
 ```bash
 # Docker
-docker run nextflow-scif run samtools
+docker run nextflow-scif scif run samtools
 # Singularity 
 ./nextflow-scif run samtools
 ```
+
 Output:
 
 ```bash
@@ -384,9 +387,9 @@ PATH=/scif/apps/samtools/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/
 Note that for above, you will get more output with the Singularity container, as it shares the environment with the host. Whether we are using Docker or Singularity, the actions going on internally with the scientific filesystem client are the same. Given a simple enough pipeline, we could stop here, and just issue a series of commands to run the different apps.
 
 ### Deploy a container
-Once you have your container completely functional you can upload it to Docker Hub or Singularity Hub for version control and sharing. We are uploading it to Docker Hub since Singularity can easily build or run a container from there.
+Once you have your container completely functional you can upload it to Docker Hub or Singularity Hub for version control and sharing. We are uploading it to Docker Hub since Singularity can easily build and run a container from there.
 
-If you have build your docker image in your container you can do:
+If you have built your docker image in your container you can do:
 ```
 # See your images
 docker images
@@ -408,7 +411,7 @@ In the nextflow config file we can customize all parameters, environment variabl
 
 In this case we have created a "simple" config file to use as a template for more complex configuration, using [nf-core](https://github.com/nf-core) as a model. It contains some sections with information ```manifest``` and process default parameters.
 
-Following that we have my favourite part where you can configure ```profiles``` for executing your nextflow pipeline. With this you can specify ```-profile standard/docker/singularity``` and the pipeline will run in your local machine, in your singularity image or in your docker image. Moreover you can add further configuration limiting the memory or the number of cpus (ever per process), or any custom variables you need for running in your institution HPC.
+Following that we have my favourite part where you can configure ```profiles``` for executing your nextflow pipeline. With this you can specify ```-profile standard/docker/singularity``` and the pipeline will run in your local machine, in your singularity image or in your docker image. Moreover you can add further configuration limiting the memory or the number of cpus (even per process), or any custom variables you need for running in your institution HPC.
 
 The section looks like this:
 ```
@@ -444,7 +447,7 @@ profiles {
 
 }
 ```
-We have separated the configuration in several config files, the singularity and docker config files will enabled singularity and docker functionality and the path/url to the container:
+We have separated the configuration in several config files, the singularity and docker config files will enable singularity and docker and the path/url to the container:
 ```
 singularity {
   enabled = true
@@ -459,7 +462,7 @@ process {
 ### Main nextflow script
 The main nextflow script [main.nf](main.nf) creates the pipeline concatenating the output of one step with another, and managing the input and output. You can check the nextflow [docs](https://www.nextflow.io/docs/latest/script.html) for mastering te creation of nextflow pipelines.
 
-Here we configured a simple template for a basic pipeline. It will be useful as an start point for developing more complex pipelines, with help and logging function templates, and space for variable checking and email reporting.
+Here we have configured a simple template for a basic pipeline. It will be useful as an start point for developing more complex pipelines, with help and logging function templates, and space for variable checking and email reporting.
 
 ### Running the pipeline
 
@@ -483,7 +486,7 @@ nextflow run BU-ISCIII/nextflow-scif -profile singularity
 ```
 and nextflow will pull the github repository, download the docker image and build it into a singularity image and run your pipeline using only one line of command!!
 
-Also thanks to scif you can also interact with the image pulled from nextflow, in this case is a singularity image build from the docker image in DockerHub and by default is saved in ```work/singularity```. Since this image is created from the Dockerfile without an entrypoint as we saw before we have to interact with:
+Also thanks to scif you can still interact with the image pulled from nextflow, in this case is a singularity image build from the docker image in DockerHub and by default is saved in ```work/singularity```. Since this image is created from the Dockerfile without an entrypoint as we saw before we have to interact with:
 ```
 # For instance inspecting bwa app
 singularity exec buisciii-nextflow-scif-1.0.img scif inspect bwa 
@@ -526,8 +529,105 @@ nextflow run BU-ISCIII/nextflow-scif -profile singularity --reads *.fastq --geno
 **NOTE:** If you are using singularity as a container you have to take into consideration that it mounts $PWD and /home/${user} by default so if your data is in this directories you will be fine. For advance usage see [this section](#advance-usage)
 
 ## 3. Testing
-**TODO** Use cirCI or Travis?? For deployment and testing
+[CircleCI](https://circleci.com) is a platform that allows you to configure real circle processes for develop, test and deploy your github projects. First of all you need to connect your github account to circle from its website, and then create a .circleci folder in your repo with a [config.yaml file](.circleci/config.yaml).
+It works executing the processes you configured in your config file in the cloud, creating a docker container for building your container, with really useful cache options which made building container images a lot faster. It amazes me hoy it works with containers inside containers, using one container for build a container xD.
+The config file consists in the definition of a base container where the magin will happen, then you start defining jobs and steps inside this jobs, for example here we have defined setup, get_data, build, test and deploy jobs. For build step, for example, we define the commands we need to use for build our container using Docker recipe in our repository.
+```
+setup:
+    environment:
+      - TZ: "/usr/share/zoneinfo/Europe/Madrid"
+    docker:
+      - image: docker:18.01.0-ce-git
+    steps:
+      - run:
+          name: Test if the user has defined the repo name
+          command: apk add --no-cache pigz python3
 
+  build:
+    environment:
+      - TZ: "/usr/share/zoneinfo/Europe/Madrid"
+    docker:
+      - image: docker:18.01.0-ce-git
+    working_directory: /tmp/src
+    steps:
+      - run:
+          name: Install parallel gzip, python3 and java
+          command: apk add --no-cache pigz python3 openjdk8 bash
+      - run:
+          name: Install nextflow
+          command: |
+            cd /usr/bin
+            wget -qO- https://get.nextflow.io | bash
+      - restore_cache:
+          keys:
+            - docker-v1-{{ .Branch }}-{{ epoch }}
+            - docker-v1-{{ .Branch }}-
+            - docker-v1-master-
+            - docker-v1-
+          paths:
+            - /tmp/cache/container.tar.gz
+
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Load Docker image layer cache
+          no_output_timeout: 30m
+          command: |
+            docker info
+            set +o pipefail
+            if [ -f /tmp/cache/container.tar.gz ]; then
+              pigz -d --stdout /tmp/cache/container.tar.gz | docker load
+            fi
+            docker images
+      - run:
+          name: Build Docker image
+          no_output_timeout: 60m
+          command: |
+            echo "Working directory is ${PWD}"
+            # If not set, define CONTAINER_NAME
+            if [ ! -n "${CONTAINER_NAME:-}" ]
+                then
+                    CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            fi
+            echo "Container name is ${CONTAINER_NAME}"
+            # Build docker image
+            e=1 && for i in {1..5}; do
+              docker build \
+                --cache-from=${CONTAINER_NAME} \
+                --rm=false \
+                -t ${CONTAINER_NAME}:latest \
+                --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+                --build-arg VCS_REF=`git rev-parse --short HEAD` \
+                --build-arg VERSION="${CIRCLE_TAG:-$THISVERSION}" . \
+              && e=0 && break || sleep 15
+            done && [ "$e" -eq "0" ]
+            # Pipeline VERSION
+            THISVERSION=$(nextflow run ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} --version)
+            echo "Pipeline Version is ${THISVERSION}"
+            echo "${CIRCLE_TAG:-$THISVERSION}"
+      - run:
+          name: Docker save
+          no_output_timeout: 40m
+          command: |
+            # If not set, define CONTAINER_NAME
+            if [ ! -n "${CONTAINER_NAME:-}" ]
+                then
+                    CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            fi
+            echo "Saving ${CONTAINER_NAME} to container.tar.gz"
+            mkdir -p /tmp/cache
+            docker save ${CONTAINER_NAME}:latest \
+              | pigz -2 -p 3 > /tmp/cache/container.tar.gz
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - cache/container.tar.gz
+            - src
+```
+Se how a container is built, and our recipe is built inside that container, then the Docker image is saved, and tagged, and persisted in the cache directory. This paths will be available in the next jobs of the config file, and if we rerun the cicle config the cache can be used. 
+Also, is worth to to notice how we can use some ENV variables of CircleCI, they can be accessed in any step and you can see them in your circleCI dashboard (It is useful for understand how it works to look around it, you can check in [here](https://circleci.com/gh/BU-ISCIII/nextflow-scif)). Moreover you can define your own in your circleci settings in the dashboard, in this case I have added the CONTAINER_NAME and the DOCKERHUB_PASS.
+
+The same way we have prepared our container building, we can automatize it deployment into Docker HUB (see the file), and the testing or our apps (still in progress). You can define different rules for different branches in your github repo, or when you make a new tag, for example in this case deployment to Docker HUB only occurs when there is a new push or a new tag to the master branch, when you push to a develop branch only build and test jobs are performed.
 
 # Advance usage
 Till this point everything is working fine because we are using the data located in our current directory, and singularity mounts ```$PWD``` by default. But what if we are running in our HPC-cluster, and our data is in /processing_Data or other custom directory?
@@ -535,28 +635,28 @@ Till this point everything is working fine because we are using the data located
 **TODO**: Try in different locations, with data and reference genome in different folders.
 Use of --bind ? . Need to pre-create paths inside the containers??
 Improvement of I/O metadata mounting only the project folder instead of all processing_Data?? 
-*Note*: for each app scif/app/{app}/data folder is created. Thats a possibility for mounting. We have to make some performance test in our cluster.
+*Note*: for each app scif/app/{app}/data folder is created. That's a possibility for mounting. We have to make some performance tests in our cluster.
 
 # Summary
-- We have created a container with all the software needed for our pipeline with Singularity and Docker using the same SCI-F recipes. This will allow you to deploy new containers really quicky for new pipelines once you have created a good collection of scif apps recipes.
-- Using SCI-F we can access all our apps installed separately from our container. Besides our container is no longer a "black-box" and we can obtain information about what apps are installed in our container, with its labels and help.
+- We have created a container with all the software needed for our pipeline with Singularity and Docker using the same SCI-F recipes. This will allow us to deploy new containers really quicky for new pipelines once you have created a good collection of scif apps recipes.
+- Using SCI-F we can access all our apps installed separately from our container. Besides, our container is no longer a "black-box" and we can obtain information about what apps are installed in our container, with its labels and help.
 - Our container is also functional with the native container commands, and we can exec any command in our container without the use of SCI-F which made it flexible enough for its use with nextflow.
-- We have deploy our container to DockerHub so new users don't have to build the image theirselves.
-- Finally we have created a basic nextflow workflow, with three different profile configurations {standard, singularity, docker}, this way you can use the same pipeline running in your local computer with your software installed, or with the singularity or docker image. Besides, you can create more profiles for its usage in a HPC with ```module``` configured, or even in a AWS server.
+- We have deployed our container to DockerHub so new users don't have to build the image theirselves.
+- Finally we have created a basic nextflow workflow, with three different profile configurations {standard, singularity, docker}, this way you can use the same pipeline running in your local machine with your software installed, or with the singularity or docker image. Besides, you can create more profiles for its usage in a HPC with ```module``` configured, or even in a AWS server.
 
-The idea is to have a workflow independent of where you are computing it, and a container system which allows you to assure reproducibility and sharing, including the maximun information possible for its use.
+The idea is to have a workflow independent of where you are computing, and a container system which allows you to assure reproducibility and sharing, including the maximun information possible for its use.
 
 # Notes
-In order to get this working I have to make a decision: put SCIF on the "top" or put nextflow instead. I will try to explain it:
+In order to get this working I had to make a decision: put SCIF on the "top" or put nextflow instead. I will try to explain myself:
 
 - Nextflow on the top:
     * Nextflow provides a natively functionality for using singularity and docker. Using it you just set the commands the pipeline is going to run, and nextflow handles the use of ```docker run``` or ```singularity exec``` before this commands with the container you supplied in the configuration.
     * This means that the executables for each app **MUST** be accesible when you run/exec from the container, not each of the apps with SCI-F. 
-    * Thus, we are being forced to add the executables to the PATH; and somehow mess up SCIF goal of separate apps environment adding the bin app folder to the PATH only when the app is run. Being this the main con of this approximation.
-    * On the other hand, our main.nf will remain untouch and will be able to run in a local machine, a cluster or a container without any modification. Which was I was looking for.
+    * Thus, we are being forced to add the executables to the PATH; and somehow mess up SCIF goal of having separate apps environment adding the bin app folder to the PATH only when the app is run. Being this the main con of this approximation.
+    * On the other hand, our main.nf will remain untouched and we will be able to run in a local machine, a cluster or a container without any modification. Which was I was looking for.
     * For this to work your minimun needs in your system are nextflow and Docker/Singularity if you are using docker or singularity profile.
     
-- SCIF on the top (I am going to make a branch testing this): - > I tried but it didn't work, I get all the apps being recognized but when the process in nextflow where going to be run the files weren't found. This is because nextflow uses a temp folder called work for all executions, and when you use scif run bwa, the command is run in ${SCIF_APPROOT} instead on nextflow folder.
+- SCIF on the top (I am going to make a branch testing this): - > I tried but it didn't work, I get all the apps being recognized but when the process in nextflow where going to be run the files weren't found. This is because nextflow uses a temp folder called ```work``` for all executions, and when you use scif run bwa, the command is run in ${SCIF_APPROOT} instead on nextflow folder.
 
    * Another aproximation will be to install nextflow inside the containers. This way you can only interact with the apps commands through SCIF which will be the only entrypoint in Singularity and Docker.
    * Nextflow in this case will not use Singularity or Docker profile, because it is INSIDE one, so this config parameters must be set to false.
@@ -567,6 +667,6 @@ In order to get this working I have to make a decision: put SCIF on the "top" or
 - Alternative middle point configuration -> I have this working in **feature/nextflow-scif-alt**
    * I install nextflow inside the container like the option above, and each app environment is separated, but I have to add all app bin folders to the path prior to run nextflow command in %apprun.
    * Also I had to cd to ${SCIF_DATA}, and bind this folder with my $PWD in the singularity command.
-   * For more info please chech feature/nextflow-scif-alt branch in this repository, and README-ALT.md file.
+   * For more info please check feature/nextflow-scif-alt branch in this repository, and README-ALT.md file.
 
-I suppose this is a decision you have to make, one could think that I can use my singularity image in my HPC system and forgot about modules and stuff, I will have all the software I need, in the version I need and whenever I need it. However even if this is going to be the case (we are still testing performance, we are very newbies using containers) I always like to have flexibility, and nextflow provides me in theory that "I don't mind where I compute" flexibility.
+I suppose this is a decision you have to make, one could think that if I can use my singularity image in my HPC system and forgot about modules and stuff, I will have all the software I need, in the version I need and whenever I need it. However even if this is going to be the case (we are still testing performance, we are very newbies using containers) I always like to have flexibility, and nextflow provides me in theory that "I don't mind where I compute" flexibility.
